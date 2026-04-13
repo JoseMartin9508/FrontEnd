@@ -3,69 +3,333 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="style.css" />
     <title>Supermercado La Economía</title>
+    <link rel="stylesheet" href="CSS/style.css" />
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="app.js" defer></script>
   </head>
   <body>
-    <header class="hero">
-      <h1>Supermercado La Economía</h1>
-      <p>Encuentra productos frescos, buenos precios y las mejores ofertas.</p>
-    </header>
-    <nav class="navbar">
-      <a href="#">Inicio</a>
-      <a href="#">Ofertas</a>
-      <a href="#">Contacto</a>
-    </nav>
-    <main class="container">
-      <section class="card">
-        <h2>Productos</h2>
-        <div class="products">
-          <div class="product-item">Arroz</div>
-          <div class="product-item">Leche</div>
-          <div class="product-item">Pan</div>
-          <div class="product-item">Huevos</div>
+    <div id="app">
+      <header class="hero">
+        <div class="hero-content">
+          <h1>{{ tienda.nombre }}</h1>
+          <p>{{ tienda.descripcion }}</p>
         </div>
-      </section>
-      <section class="card">
-        <h2>Galería</h2>
-        <div class="gallery">
-          <img src="image.png" alt="Arroz" />
-          <img src="image.png" alt="Leche" />
+      </header>
+
+      <nav class="navbar">
+        <a href="#">Inicio</a>
+        <a href="#ofertas">Ofertas</a>
+        <a href="#productos">Productos</a>
+        <a href="#contacto">Contacto</a>
+      </nav>
+
+      <main class="container">
+        <section class="card controls-card">
+          <div class="controls-top">
+            <div class="search-box">
+              <input
+                type="text"
+                placeholder="Buscar producto..."
+                v-model="busqueda"
+              />
+            </div>
+
+            <div class="cart-summary">
+              <span>🛒 {{ cantidadCarrito }} productos</span>
+              <strong>Total: ${{ totalCarrito.toFixed(2) }}</strong>
+            </div>
+          </div>
+
+          <div class="filters">
+            <button
+              class="filter-btn"
+              :class="{ active: categoriaSeleccionada === 'Todos' }"
+              @click="categoriaSeleccionada = 'Todos'"
+            >
+              Todos
+            </button>
+
+            <button
+              class="filter-btn"
+              :class="{ active: categoriaSeleccionada === 'Ofertas' }"
+              @click="categoriaSeleccionada = 'Ofertas'"
+            >
+              Ofertas
+            </button>
+
+            <button
+              class="filter-btn"
+              v-for="categoria in categorias"
+              :key="categoria"
+              :class="{ active: categoriaSeleccionada === categoria }"
+              @click="categoriaSeleccionada = categoria"
+            >
+              {{ categoria }}
+            </button>
+          </div>
+        </section>
+
+        <section class="card" id="ofertas" v-if="productosEnOferta.length">
+          <div class="section-header">
+            <h2>Ofertas de la semana</h2>
+            <p>Aprovecha nuestros descuentos</p>
+          </div>
+
+          <div class="products-grid">
+            <article
+              class="product-card"
+              v-for="producto in productosEnOferta"
+              :key="producto.id"
+            >
+              <div class="offer-badge">-{{ producto.descuento }}%</div>
+
+              <img
+                :src="producto.imagen"
+                :alt="producto.nombre"
+                class="product-image"
+              />
+
+              <div class="product-body">
+                <span class="product-category">{{ producto.categoria }}</span>
+                <h3>{{ producto.nombre }}</h3>
+                <p class="product-description">{{ producto.descripcion }}</p>
+
+                <div class="product-meta offer-meta">
+                  <div class="price-block">
+                    <span class="old-price">
+                      ${{ producto.precioAnterior.toFixed(2) }}
+                    </span>
+                    <strong class="price">
+                      ${{ producto.precio.toFixed(2) }}
+                    </strong>
+                  </div>
+
+                  <span
+                    class="stock"
+                    :class="{ agotado: !producto.disponible }"
+                  >
+                    {{ producto.disponible ? 'Disponible' : 'Agotado' }}
+                  </span>
+                </div>
+
+                <div class="product-actions">
+                  <button
+                    class="secondary-btn"
+                    @click="agregarAlCarrito(producto)"
+                    :disabled="!producto.disponible"
+                  >
+                    Agregar
+                  </button>
+
+                  <button
+                    class="primary-btn"
+                    @click="comprarAhora(producto)"
+                    :disabled="!producto.disponible"
+                  >
+                    Aprovechar oferta
+                  </button>
+                </div>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section class="card" id="productos">
+          <div class="section-header">
+            <h2>Productos destacados</h2>
+            <p>{{ productosFiltrados.length }} productos encontrados</p>
+          </div>
+
+          <div class="products-grid">
+            <article
+              class="product-card"
+              v-for="producto in productosFiltrados"
+              :key="producto.id"
+            >
+              <div v-if="producto.enOferta" class="offer-badge">
+                -{{ calcularDescuento(producto) }}%
+              </div>
+
+              <img
+                :src="producto.imagen"
+                :alt="producto.nombre"
+                class="product-image"
+              />
+
+              <div class="product-body">
+                <span class="product-category">{{ producto.categoria }}</span>
+                <h3>{{ producto.nombre }}</h3>
+                <p class="product-description">{{ producto.descripcion }}</p>
+
+                <div class="product-meta">
+                  <div class="price-block">
+                    <span v-if="producto.enOferta" class="old-price">
+                      ${{ producto.precioAnterior.toFixed(2) }}
+                    </span>
+                    <strong class="price">
+                      ${{ producto.precio.toFixed(2) }}
+                    </strong>
+                  </div>
+
+                  <span
+                    class="stock"
+                    :class="{ agotado: !producto.disponible }"
+                  >
+                    {{ producto.disponible ? 'Disponible' : 'Agotado' }}
+                  </span>
+                </div>
+
+                <div class="product-actions">
+                  <button
+                    class="secondary-btn"
+                    @click="agregarAlCarrito(producto)"
+                    :disabled="!producto.disponible"
+                  >
+                    Agregar
+                  </button>
+
+                  <button
+                    class="primary-btn"
+                    @click="comprarAhora(producto)"
+                    :disabled="!producto.disponible"
+                  >
+                    Comprar ahora
+                  </button>
+                </div>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="section-header">
+            <h2>Carrito</h2>
+            <p v-if="carrito.length > 0">Administra tus productos</p>
+          </div>
+
+          <div v-if="carrito.length === 0" class="empty-state">
+            <p>No hay productos en el carrito.</p>
+          </div>
+
+          <div v-else class="cart-list">
+            <div class="cart-item" v-for="item in carrito" :key="item.id">
+              <div>
+                <h4>{{ item.nombre }}</h4>
+                <p>${{ item.precio.toFixed(2) }} c/u</p>
+              </div>
+
+              <div class="cart-controls">
+                <button class="qty-btn" @click="restar(item)">-</button>
+                <span>{{ item.cantidad }}</span>
+                <button class="qty-btn" @click="sumar(item)">+</button>
+              </div>
+
+              <strong>${{ (item.precio * item.cantidad).toFixed(2) }}</strong>
+            </div>
+
+            <div class="cart-footer">
+              <div>
+                <p>Total del carrito</p>
+                <h3>${{ totalCarrito.toFixed(2) }}</h3>
+              </div>
+
+              <button class="primary-btn large-btn" @click="comprarCarrito">
+                Finalizar compra
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <section class="card" id="contacto">
+          <div class="section-header">
+            <h2>Contacto</h2>
+            <p>¿Tienes dudas? Escríbenos</p>
+          </div>
+
+          <form class="contact-form" @submit.prevent="enviarContacto">
+            <input type="text" placeholder="Nombre" v-model="contacto.nombre" />
+            <input
+              type="email"
+              placeholder="Correo"
+              v-model="contacto.correo"
+            />
+            <textarea
+              placeholder="Escribe tu mensaje"
+              v-model="contacto.mensaje"
+            ></textarea>
+            <button type="submit" class="primary-btn">Enviar mensaje</button>
+          </form>
+
+          <p v-if="mensajeContacto" class="success-message">
+            {{ mensajeContacto }}
+          </p>
+        </section>
+      </main>
+
+      <div
+        v-if="mostrarModalCompra"
+        class="modal-overlay"
+        @click.self="cerrarModal"
+      >
+        <div class="modal">
+          <div class="modal-header">
+            <h2>Finalizar compra</h2>
+            <button class="close-btn" @click="cerrarModal">×</button>
+          </div>
+
+          <div class="modal-content">
+            <div class="order-summary">
+              <h3>Resumen del pedido</h3>
+
+              <div
+                class="order-item"
+                v-for="item in pedidoActual"
+                :key="item.id"
+              >
+                <span>{{ item.nombre }} x {{ item.cantidad }}</span>
+                <strong>${{ (item.precio * item.cantidad).toFixed(2) }}</strong>
+              </div>
+
+              <div class="order-total">
+                <span>Total</span>
+                <strong>${{ totalPedidoActual.toFixed(2) }}</strong>
+              </div>
+            </div>
+
+            <form class="purchase-form" @submit.prevent="confirmarCompra">
+              <input
+                type="text"
+                placeholder="Nombre completo"
+                v-model="formCompra.nombre"
+              />
+              <input
+                type="email"
+                placeholder="Correo electrónico"
+                v-model="formCompra.correo"
+              />
+              <input
+                type="text"
+                placeholder="Dirección de entrega"
+                v-model="formCompra.direccion"
+              />
+              <input
+                type="text"
+                placeholder="Teléfono"
+                v-model="formCompra.telefono"
+              />
+
+              <button type="submit" class="primary-btn large-btn">
+                Confirmar pedido
+              </button>
+            </form>
+
+            <p v-if="mensajeCompra" class="success-message">
+              {{ mensajeCompra }}
+            </p>
+          </div>
         </div>
-      </section>
-      <section class="card">
-        <h2>Precios</h2>
-        <table>
-          <thead>
-            <tr>
-              <th>Producto</th>
-              <th>Precio</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Arroz</td>
-              <td>$2</td>
-            </tr>
-            <tr>
-              <td>Leche</td>
-              <td>$1</td>
-            </tr>
-            <tr>
-              <td>Pan</td>
-              <td>$1.5</td>
-            </tr>
-          </tbody>
-        </table>
-      </section>
-      <section class="card">
-        <h2>Contacto</h2>
-        <form class="contact-form">
-          <input type="text" placeholder="Nombre" />
-          <input type="email" placeholder="Correo" />
-          <button type="submit">Enviar</button>
-        </form>
-      </section>
-    </main>
+      </div>
+    </div>
   </body>
 </html>
