@@ -1,22 +1,40 @@
 <!doctype html>
+<!-- Declaración del tipo de documento HTML5 -->
 <html lang="es">
   <head>
+    <!-- Codificación de caracteres UTF-8 para soporte de tildes y caracteres especiales -->
     <meta charset="UTF-8" />
+    <!-- Hace que la página sea responsiva en dispositivos móviles -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Supermercado La Economía</title>
+
+    <!-- Enlace al archivo de estilos CSS ubicado en la carpeta CSS -->
     <link rel="stylesheet" href="CSS/style.css" />
+
+    <!-- CDN de Vue 3: framework reactivo que maneja la lógica de la interfaz -->
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-    <script src="app.js" defer></script>
+
+    <!-- Script principal de la aplicación ubicado en la carpeta JS -->
+    <!-- defer: se ejecuta después de que el HTML termina de cargarse -->
+    <script src="JS/app.js" defer></script>
   </head>
   <body>
+
+    <!-- Contenedor raíz donde Vue monta toda la aplicación (#app) -->
     <div id="app">
+
+      <!-- ===== HERO / ENCABEZADO PRINCIPAL ===== -->
+      <!-- Sección visual de bienvenida con el nombre y descripción de la tienda -->
       <header class="hero">
         <div class="hero-content">
+          <!-- Título dinámico: Vue reemplaza {{ }} con datos del objeto "tienda" -->
           <h1>{{ tienda.nombre }}</h1>
           <p>{{ tienda.descripcion }}</p>
         </div>
       </header>
 
+      <!-- ===== BARRA DE NAVEGACIÓN ===== -->
+      <!-- Navbar fija en la parte superior para desplazarse entre secciones -->
       <nav class="navbar">
         <a href="#">Inicio</a>
         <a href="#ofertas">Ofertas</a>
@@ -24,9 +42,15 @@
         <a href="#contacto">Contacto</a>
       </nav>
 
+      <!-- ===== CONTENIDO PRINCIPAL ===== -->
       <main class="container">
+
+        <!-- ===== SECCIÓN DE CONTROLES: BÚSQUEDA, CARRITO Y FILTROS ===== -->
         <section class="card controls-card">
           <div class="controls-top">
+
+            <!-- Campo de búsqueda vinculado con v-model a la variable "busqueda" en Vue -->
+            <!-- Cada tecla que el usuario presiona filtra los productos en tiempo real -->
             <div class="search-box">
               <input
                 type="text"
@@ -35,13 +59,19 @@
               />
             </div>
 
+            <!-- Resumen del carrito: muestra cantidad de productos y total calculado -->
+            <!-- cantidadCarrito y totalCarrito son propiedades computadas de Vue -->
             <div class="cart-summary">
               <span>🛒 {{ cantidadCarrito }} productos</span>
               <strong>Total: ${{ totalCarrito.toFixed(2) }}</strong>
             </div>
           </div>
 
+          <!-- Botones de filtro por categoría -->
           <div class="filters">
+
+            <!-- Botón "Todos": muestra todos los productos sin filtrar -->
+            <!-- :class aplica la clase "active" cuando esa categoría está seleccionada -->
             <button
               class="filter-btn"
               :class="{ active: categoriaSeleccionada === 'Todos' }"
@@ -50,6 +80,7 @@
               Todos
             </button>
 
+            <!-- Botón fijo para filtrar solo productos en oferta -->
             <button
               class="filter-btn"
               :class="{ active: categoriaSeleccionada === 'Ofertas' }"
@@ -58,6 +89,8 @@
               Ofertas
             </button>
 
+            <!-- Botones generados dinámicamente a partir de las categorías únicas de los productos -->
+            <!-- v-for recorre el array "categorias" (propiedad computada) y genera un botón por cada una -->
             <button
               class="filter-btn"
               v-for="categoria in categorias"
@@ -70,41 +103,54 @@
           </div>
         </section>
 
+        <!-- ===== SECCIÓN DE OFERTAS DE LA SEMANA ===== -->
+        <!-- v-if: esta sección solo se muestra si hay al menos un producto en oferta -->
         <section class="card" id="ofertas" v-if="productosEnOferta.length">
           <div class="section-header">
             <h2>Ofertas de la semana</h2>
             <p>Aprovecha nuestros descuentos</p>
           </div>
 
+          <!-- Grid de tarjetas de productos en oferta -->
           <div class="products-grid">
+
+            <!-- v-for: renderiza una tarjeta por cada producto en oferta -->
+            <!-- :key es obligatorio en Vue para identificar de forma única cada elemento -->
             <article
               class="product-card"
               v-for="producto in productosEnOferta"
               :key="producto.id"
             >
+              <!-- Badge rojo con el porcentaje de descuento del producto -->
               <div class="offer-badge">-{{ producto.descuento }}%</div>
 
+              <!-- Imagen del producto: src y alt se enlazan dinámicamente con : (v-bind) -->
               <img
                 :src="producto.imagen"
                 :alt="producto.nombre"
                 class="product-image"
               />
 
+              <!-- Cuerpo de la tarjeta con información detallada del producto -->
               <div class="product-body">
                 <span class="product-category">{{ producto.categoria }}</span>
                 <h3>{{ producto.nombre }}</h3>
                 <p class="product-description">{{ producto.descripcion }}</p>
 
+                <!-- Metadatos: precio tachado (anterior), precio actual y disponibilidad -->
                 <div class="product-meta offer-meta">
                   <div class="price-block">
+                    <!-- Precio original antes del descuento -->
                     <span class="old-price">
                       ${{ producto.precioAnterior.toFixed(2) }}
                     </span>
+                    <!-- Precio actual con descuento aplicado -->
                     <strong class="price">
                       ${{ producto.precio.toFixed(2) }}
                     </strong>
                   </div>
 
+                  <!-- Disponibilidad: clase "agotado" se aplica si el producto no está disponible -->
                   <span
                     class="stock"
                     :class="{ agotado: !producto.disponible }"
@@ -113,7 +159,9 @@
                   </span>
                 </div>
 
+                <!-- Botones de acción: agregar al carrito o comprar directamente -->
                 <div class="product-actions">
+                  <!-- Agrega el producto al carrito (deshabilitado si está agotado) -->
                   <button
                     class="secondary-btn"
                     @click="agregarAlCarrito(producto)"
@@ -122,6 +170,7 @@
                     Agregar
                   </button>
 
+                  <!-- Abre el modal de compra con este producto solamente -->
                   <button
                     class="primary-btn"
                     @click="comprarAhora(producto)"
@@ -135,19 +184,25 @@
           </div>
         </section>
 
+        <!-- ===== SECCIÓN DE PRODUCTOS DESTACADOS ===== -->
+        <!-- Muestra todos los productos filtrados según búsqueda y categoría -->
         <section class="card" id="productos">
           <div class="section-header">
             <h2>Productos destacados</h2>
+            <!-- Contador reactivo: se actualiza automáticamente al filtrar -->
             <p>{{ productosFiltrados.length }} productos encontrados</p>
           </div>
 
+          <!-- Grid de tarjetas de productos filtrados -->
           <div class="products-grid">
             <article
               class="product-card"
               v-for="producto in productosFiltrados"
               :key="producto.id"
             >
+              <!-- Badge de oferta: solo se muestra si el producto tiene enOferta = true -->
               <div v-if="producto.enOferta" class="offer-badge">
+                <!-- calcularDescuento() es un método que calcula el % de descuento -->
                 -{{ calcularDescuento(producto) }}%
               </div>
 
@@ -164,6 +219,7 @@
 
                 <div class="product-meta">
                   <div class="price-block">
+                    <!-- Precio anterior solo se muestra si el producto está en oferta -->
                     <span v-if="producto.enOferta" class="old-price">
                       ${{ producto.precioAnterior.toFixed(2) }}
                     </span>
@@ -202,38 +258,52 @@
           </div>
         </section>
 
+        <!-- ===== SECCIÓN DEL CARRITO DE COMPRAS ===== -->
         <section class="card">
           <div class="section-header">
             <h2>Carrito</h2>
+            <!-- Subtítulo condicional: solo se muestra si hay items en el carrito -->
             <p v-if="carrito.length > 0">Administra tus productos</p>
           </div>
 
+          <!-- Estado vacío: se muestra cuando el carrito no tiene productos -->
           <div v-if="carrito.length === 0" class="empty-state">
             <p>No hay productos en el carrito.</p>
           </div>
 
+          <!-- Lista de items del carrito (v-else: se muestra cuando el carrito tiene items) -->
           <div v-else class="cart-list">
+
+            <!-- Fila por cada producto en el carrito -->
             <div class="cart-item" v-for="item in carrito" :key="item.id">
               <div>
                 <h4>{{ item.nombre }}</h4>
+                <!-- Precio unitario del producto -->
                 <p>${{ item.precio.toFixed(2) }} c/u</p>
               </div>
 
+              <!-- Controles de cantidad: restar, valor actual y sumar -->
               <div class="cart-controls">
+                <!-- restar(): decrementa la cantidad o elimina el item si llega a 0 -->
                 <button class="qty-btn" @click="restar(item)">-</button>
                 <span>{{ item.cantidad }}</span>
+                <!-- sumar(): incrementa la cantidad del producto en el carrito -->
                 <button class="qty-btn" @click="sumar(item)">+</button>
               </div>
 
+              <!-- Subtotal: precio × cantidad de este producto -->
               <strong>${{ (item.precio * item.cantidad).toFixed(2) }}</strong>
             </div>
 
+            <!-- Pie del carrito: total general y botón para finalizar compra -->
             <div class="cart-footer">
               <div>
                 <p>Total del carrito</p>
+                <!-- totalCarrito es una propiedad computada que suma todos los subtotales -->
                 <h3>${{ totalCarrito.toFixed(2) }}</h3>
               </div>
 
+              <!-- Abre el modal de compra con todos los productos del carrito -->
               <button class="primary-btn large-btn" @click="comprarCarrito">
                 Finalizar compra
               </button>
@@ -241,13 +311,17 @@
           </div>
         </section>
 
+        <!-- ===== SECCIÓN DE CONTACTO ===== -->
         <section class="card" id="contacto">
           <div class="section-header">
             <h2>Contacto</h2>
             <p>¿Tienes dudas? Escríbenos</p>
           </div>
 
+          <!-- Formulario de contacto -->
+          <!-- @submit.prevent: previene el reload de la página y llama a enviarContacto() -->
           <form class="contact-form" @submit.prevent="enviarContacto">
+            <!-- v-model enlaza cada campo con las propiedades del objeto "contacto" en Vue -->
             <input type="text" placeholder="Nombre" v-model="contacto.nombre" />
             <input
               type="email"
@@ -261,27 +335,37 @@
             <button type="submit" class="primary-btn">Enviar mensaje</button>
           </form>
 
+          <!-- Mensaje de confirmación que aparece después de enviar el formulario -->
           <p v-if="mensajeContacto" class="success-message">
             {{ mensajeContacto }}
           </p>
         </section>
       </main>
 
+      <!-- ===== MODAL DE FINALIZAR COMPRA ===== -->
+      <!-- v-if: el modal solo se renderiza cuando mostrarModalCompra es true -->
+      <!-- @click.self: cierra el modal al hacer clic en el fondo oscuro (no en el contenido) -->
       <div
         v-if="mostrarModalCompra"
         class="modal-overlay"
         @click.self="cerrarModal"
       >
         <div class="modal">
+
+          <!-- Cabecera del modal con título y botón de cierre -->
           <div class="modal-header">
             <h2>Finalizar compra</h2>
+            <!-- cerrarModal() oculta el modal y limpia el mensaje de compra -->
             <button class="close-btn" @click="cerrarModal">×</button>
           </div>
 
           <div class="modal-content">
+
+            <!-- Resumen del pedido: lista los productos que se están comprando -->
             <div class="order-summary">
               <h3>Resumen del pedido</h3>
 
+              <!-- Cada item del pedido actual con su nombre, cantidad y subtotal -->
               <div
                 class="order-item"
                 v-for="item in pedidoActual"
@@ -291,13 +375,17 @@
                 <strong>${{ (item.precio * item.cantidad).toFixed(2) }}</strong>
               </div>
 
+              <!-- Total calculado del pedido actual -->
               <div class="order-total">
                 <span>Total</span>
                 <strong>${{ totalPedidoActual.toFixed(2) }}</strong>
               </div>
             </div>
 
+            <!-- Formulario de datos del comprador para confirmar el pedido -->
+            <!-- @submit.prevent: llama a confirmarCompra() sin recargar la página -->
             <form class="purchase-form" @submit.prevent="confirmarCompra">
+              <!-- Campos enlazados con v-model al objeto formCompra de Vue -->
               <input
                 type="text"
                 placeholder="Nombre completo"
@@ -319,17 +407,20 @@
                 v-model="formCompra.telefono"
               />
 
+              <!-- Botón que dispara la validación y confirmación del pedido -->
               <button type="submit" class="primary-btn large-btn">
                 Confirmar pedido
               </button>
             </form>
 
+            <!-- Mensaje de éxito o error que aparece tras intentar confirmar la compra -->
             <p v-if="mensajeCompra" class="success-message">
               {{ mensajeCompra }}
             </p>
           </div>
         </div>
       </div>
-    </div>
+
+    </div><!-- Fin del contenedor raíz #app de Vue -->
   </body>
 </html>

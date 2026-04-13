@@ -1,29 +1,42 @@
+/* =====================================================
+   style.css — Estilos globales de Supermercado La Economía
+   ===================================================== */
+
+/* Reset global: elimina márgenes, rellenos y usa box-sizing consistente
+   para que padding y border no afecten el ancho/alto de los elementos */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
+/* ===== VARIABLES CSS (Design Tokens) =====
+   Centraliza los colores y valores reutilizables en toda la hoja de estilos.
+   Se acceden con var(--nombre) en cualquier regla CSS. */
 :root {
-  --primary: #2563eb;
-  --primary-dark: #1d4ed8;
-  --secondary: #eff6ff;
-  --text: #1f2937;
-  --muted: #6b7280;
-  --border: #dbe3f0;
-  --white: #ffffff;
-  --success: #16a34a;
-  --danger: #dc2626;
-  --shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
-  --radius: 20px;
+  --primary: #2563eb;          /* Azul principal (botones, links activos) */
+  --primary-dark: #1d4ed8;     /* Azul oscuro (hover de botones, precio actual) */
+  --secondary: #eff6ff;        /* Azul muy claro (fondos de badges de categoría) */
+  --text: #1f2937;             /* Color de texto general (casi negro) */
+  --muted: #6b7280;            /* Texto secundario/apagado (descripciones, subtítulos) */
+  --border: #dbe3f0;           /* Color de bordes de inputs y separadores */
+  --white: #ffffff;            /* Blanco puro */
+  --success: #16a34a;          /* Verde para mensajes de éxito y stock disponible */
+  --danger: #dc2626;           /* Rojo para productos agotados y badges de oferta */
+  --shadow: 0 10px 30px rgba(15, 23, 42, 0.08); /* Sombra suave para tarjetas */
+  --radius: 20px;              /* Radio de borde estándar para tarjetas y secciones */
 }
 
+/* ===== BODY =====
+   Fuente base, fondo degradado suave y color de texto por defecto */
 body {
   font-family: Arial, Helvetica, sans-serif;
-  background: linear-gradient(135deg, #f4f8ff, #eef4ff);
+  background: linear-gradient(135deg, #f4f8ff, #eef4ff); /* Degradado azul muy tenue */
   color: var(--text);
 }
 
+/* ===== HERO (ENCABEZADO PRINCIPAL) =====
+   Sección de bienvenida con degradado azul y texto centrado en blanco */
 .hero {
   background: linear-gradient(135deg, #2563eb, #1e40af);
   color: white;
@@ -31,65 +44,79 @@ body {
   text-align: center;
 }
 
+/* Limita el ancho del contenido del hero para mejor legibilidad */
 .hero-content {
   max-width: 800px;
   margin: 0 auto;
 }
 
+/* Badge/etiqueta pequeña con fondo translúcido (usado opcionalmente en el hero) */
 .badge {
   display: inline-block;
   background: rgba(255, 255, 255, 0.16);
   border: 1px solid rgba(255, 255, 255, 0.22);
   padding: 8px 14px;
-  border-radius: 999px;
+  border-radius: 999px; /* Cápsula completamente redondeada */
   margin-bottom: 18px;
   font-size: 0.9rem;
 }
 
+/* Título principal del hero */
 .hero h1 {
   font-size: 3rem;
   margin-bottom: 12px;
 }
 
+/* Subtítulo/descripción del hero con leve transparencia */
 .hero p {
   font-size: 1.08rem;
   opacity: 0.95;
 }
 
+/* ===== NAVBAR =====
+   Barra de navegación fija que permanece visible al hacer scroll.
+   Usa backdrop-filter para un efecto de vidrio esmerilado. */
 .navbar {
-  position: sticky;
+  position: sticky;     /* Se pega al tope de la pantalla al hacer scroll */
   top: 0;
-  z-index: 10;
+  z-index: 10;          /* Por encima del contenido para no quedar tapada */
   display: flex;
   justify-content: center;
   gap: 14px;
   padding: 16px;
-  background: rgba(255, 255, 255, 0.92);
-  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.92); /* Blanco semitransparente */
+  backdrop-filter: blur(10px);           /* Efecto de desenfoque del fondo */
   box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
 }
 
+/* Estilos de los enlaces de la navbar */
 .navbar a {
   text-decoration: none;
   color: var(--text);
   font-weight: bold;
   padding: 10px 16px;
   border-radius: 12px;
-  transition: 0.25s ease;
+  transition: 0.25s ease; /* Transición suave al pasar el mouse */
 }
 
+/* Hover de los enlaces: fondo azul y texto blanco */
 .navbar a:hover {
   background: var(--primary);
   color: white;
 }
 
+/* ===== CONTENEDOR PRINCIPAL =====
+   Grid de una columna que limita el ancho y centra el contenido.
+   min(1200px, 92%) usa el menor valor: 1200px en pantallas grandes, 92% en móviles. */
 .container {
   width: min(1200px, 92%);
   margin: 30px auto 50px;
   display: grid;
-  gap: 24px;
+  gap: 24px; /* Espacio entre secciones */
 }
 
+/* ===== TARJETAS (CARD) =====
+   Contenedor visual con fondo blanco, bordes redondeados y sombra */
 .card {
   background: var(--white);
   border-radius: var(--radius);
@@ -97,23 +124,28 @@ body {
   box-shadow: var(--shadow);
 }
 
+/* Padding inferior reducido para la card de controles */
 .controls-card {
   padding-bottom: 20px;
 }
 
+/* Fila superior de controles: buscador a la izquierda, resumen del carrito a la derecha */
 .controls-top {
   display: flex;
   justify-content: space-between;
   gap: 16px;
   align-items: center;
-  flex-wrap: wrap;
+  flex-wrap: wrap; /* Se apilan en pantallas pequeñas */
 }
 
+/* El buscador ocupa el espacio restante junto al carrito */
 .search-box {
   flex: 1;
   min-width: 260px;
 }
 
+/* ===== INPUTS Y TEXTAREAS =====
+   Estilos compartidos para todos los campos de texto del sitio */
 .search-box input,
 .contact-form input,
 .contact-form textarea,
@@ -122,12 +154,13 @@ body {
   padding: 14px 16px;
   border: 1px solid var(--border);
   border-radius: 14px;
-  outline: none;
+  outline: none;          /* Elimina el outline nativo del navegador */
   font-size: 1rem;
   transition: 0.25s ease;
   background: #fbfdff;
 }
 
+/* Efecto de foco: borde azul y sombra azul tenue */
 .search-box input:focus,
 .contact-form input:focus,
 .contact-form textarea:focus,
@@ -136,6 +169,8 @@ body {
   box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
 }
 
+/* ===== RESUMEN DEL CARRITO =====
+   Caja informativa con cantidad de productos y total del carrito */
 .cart-summary {
   background: var(--secondary);
   padding: 14px 18px;
@@ -146,13 +181,16 @@ body {
   gap: 6px;
 }
 
+/* ===== FILTROS DE CATEGORÍA =====
+   Fila de botones tipo "chip" para filtrar productos */
 .filters {
   display: flex;
   gap: 10px;
-  flex-wrap: wrap;
+  flex-wrap: wrap; /* Se envuelven en múltiples líneas si no caben */
   margin-top: 18px;
 }
 
+/* Reset de estilos de botones: sin borde, cursor puntero y transición */
 .filter-btn,
 .primary-btn,
 .secondary-btn,
@@ -163,25 +201,29 @@ body {
   transition: 0.25s ease;
 }
 
+/* Botón de filtro en estado normal (gris claro) */
 .filter-btn {
   background: #f3f6fb;
   color: var(--text);
   padding: 10px 16px;
-  border-radius: 999px;
+  border-radius: 999px; /* Cápsula */
   font-weight: bold;
 }
 
+/* Botón de filtro activo o hover: se vuelve azul */
 .filter-btn.active,
 .filter-btn:hover {
   background: var(--primary);
   color: white;
 }
 
+/* ===== ENCABEZADO DE SECCIÓN =====
+   Fila con título a la izquierda y texto descriptivo a la derecha */
 .section-header {
   display: flex;
   justify-content: space-between;
   gap: 10px;
-  align-items: end;
+  align-items: end;     /* Alinea al baseline inferior */
   margin-bottom: 20px;
   flex-wrap: wrap;
 }
@@ -194,15 +236,19 @@ body {
   color: var(--muted);
 }
 
+/* ===== GRID DE PRODUCTOS =====
+   Distribución automática de tarjetas: mínimo 260px, se adaptan al ancho disponible */
 .products-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 20px;
 }
 
+/* ===== TARJETA DE PRODUCTO =====
+   Contenedor individual de cada producto con efecto de elevación al hover */
 .product-card {
-  position: relative;
-  overflow: hidden;
+  position: relative;    /* Necesario para posicionar el badge de oferta */
+  overflow: hidden;      /* Evita que la imagen desborde los bordes redondeados */
   border: 1px solid #edf2f8;
   border-radius: 20px;
   background: #fcfdff;
@@ -210,11 +256,13 @@ body {
   transition: 0.25s ease;
 }
 
+/* Efecto de elevación al pasar el mouse sobre la tarjeta */
 .product-card:hover {
   transform: translateY(-4px);
   box-shadow: 0 16px 28px rgba(15, 23, 42, 0.09);
 }
 
+/* Badge de oferta: etiqueta roja en la esquina superior derecha de la tarjeta */
 .offer-badge {
   position: absolute;
   top: 14px;
@@ -225,19 +273,22 @@ body {
   border-radius: 999px;
   font-size: 0.85rem;
   font-weight: bold;
-  z-index: 2;
+  z-index: 2; /* Por encima de la imagen */
 }
 
+/* Imagen del producto: ocupa todo el ancho con altura fija y recorte */
 .product-image {
   width: 100%;
   height: 220px;
-  object-fit: cover;
+  object-fit: cover; /* Recorta la imagen para que llene el espacio sin deformarse */
 }
 
+/* Contenedor del texto y acciones de la tarjeta */
 .product-body {
   padding: 18px;
 }
 
+/* Etiqueta de categoría del producto (azul sobre fondo azul claro) */
 .product-category {
   display: inline-block;
   margin-bottom: 10px;
@@ -249,18 +300,21 @@ body {
   border-radius: 999px;
 }
 
+/* Nombre del producto */
 .product-body h3 {
   font-size: 1.3rem;
   margin-bottom: 10px;
 }
 
+/* Descripción del producto con altura mínima para alinear tarjetas */
 .product-description {
   color: var(--muted);
   font-size: 0.96rem;
   line-height: 1.5;
-  min-height: 48px;
+  min-height: 48px; /* Garantiza que todas las tarjetas tengan la misma altura */
 }
 
+/* Fila de precio y disponibilidad */
 .product-meta {
   display: flex;
   justify-content: space-between;
@@ -268,60 +322,71 @@ body {
   margin: 18px 0 16px;
 }
 
+/* Variante para productos en oferta: alinea al final para que los precios queden bien */
 .offer-meta {
   align-items: flex-end;
 }
 
+/* Columna de precios: precio anterior tachado arriba, precio actual abajo */
 .price-block {
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
 
+/* Precio original tachado (gris) */
 .old-price {
   color: #6b7280;
   text-decoration: line-through;
   font-size: 0.95rem;
 }
 
+/* Precio actual destacado en azul oscuro */
 .price {
   font-size: 1.3rem;
   color: var(--primary-dark);
 }
 
+/* Indicador de disponibilidad: verde si disponible */
 .stock {
   font-size: 0.9rem;
   color: var(--success);
   font-weight: bold;
 }
 
+/* Indicador de agotado: rojo cuando el producto no está disponible */
 .stock.agotado {
   color: var(--danger);
 }
 
+/* Fila de botones de acción de cada tarjeta de producto */
 .product-actions {
   display: flex;
   gap: 10px;
 }
 
+/* Estilos base compartidos para botones primarios y secundarios */
 .primary-btn,
 .secondary-btn {
   padding: 12px 16px;
   border-radius: 14px;
   font-weight: bold;
-  flex: 1;
+  flex: 1; /* Cada botón ocupa el mismo ancho disponible */
 }
 
+/* Botón primario: degradado azul con texto blanco */
 .primary-btn {
   background: linear-gradient(135deg, var(--primary), var(--primary-dark));
   color: white;
 }
 
+/* Hover del botón primario: leve elevación y opacidad */
 .primary-btn:hover {
   transform: translateY(-2px);
   opacity: 0.96;
 }
 
+/* Botón secundario: fondo azul muy claro con texto oscuro */
 .secondary-btn {
   background: #eef3fb;
   color: var(--text);
@@ -331,6 +396,7 @@ body {
   background: #dfe9fb;
 }
 
+/* Botones deshabilitados: opacos y sin cursor ni transformación */
 .primary-btn:disabled,
 .secondary-btn:disabled {
   opacity: 0.55;
@@ -338,6 +404,7 @@ body {
   transform: none;
 }
 
+/* ===== ESTADO VACÍO DEL CARRITO ===== */
 .empty-state {
   padding: 18px;
   background: #f8fafc;
@@ -345,14 +412,17 @@ body {
   color: var(--muted);
 }
 
+/* ===== LISTA DEL CARRITO =====
+   Grid con espacio entre cada fila de producto */
 .cart-list {
   display: grid;
   gap: 14px;
 }
 
+/* Fila individual del carrito: tres columnas (info, controles, subtotal) */
 .cart-item {
   display: grid;
-  grid-template-columns: 1.5fr auto auto;
+  grid-template-columns: 1.5fr auto auto; /* Info toma más espacio, resto se ajusta */
   gap: 16px;
   align-items: center;
   padding: 16px;
@@ -361,17 +431,20 @@ body {
   background: #fbfdff;
 }
 
+/* Precio unitario debajo del nombre en la fila del carrito */
 .cart-item p {
   color: var(--muted);
   margin-top: 4px;
 }
 
+/* Controles de cantidad: botones - y + con la cantidad al centro */
 .cart-controls {
   display: flex;
   align-items: center;
   gap: 10px;
 }
 
+/* Botón circular de cantidad (+ o -) */
 .qty-btn {
   width: 36px;
   height: 36px;
@@ -384,6 +457,7 @@ body {
   background: #dbe7ff;
 }
 
+/* Pie del carrito: total y botón de finalizar compra en la misma fila */
 .cart-footer {
   display: flex;
   justify-content: space-between;
@@ -391,23 +465,27 @@ body {
   align-items: center;
   margin-top: 8px;
   padding-top: 14px;
-  border-top: 1px solid #edf2f8;
+  border-top: 1px solid #edf2f8; /* Línea separadora visual */
   flex-wrap: wrap;
 }
 
+/* Botones con ancho mínimo para que no queden demasiado pequeños */
 .large-btn {
   min-width: 220px;
 }
 
+/* ===== FORMULARIOS (CONTACTO Y COMPRA) =====
+   Grid vertical con espacio entre campos */
 .contact-form,
 .purchase-form {
   display: grid;
   gap: 14px;
 }
 
+/* Área de texto del formulario de contacto */
 .contact-form textarea {
   min-height: 120px;
-  resize: vertical;
+  resize: vertical; /* Solo permite redimensionar verticalmente */
   padding: 14px 16px;
   border-radius: 14px;
   border: 1px solid var(--border);
@@ -416,6 +494,7 @@ body {
   background: #fbfdff;
 }
 
+/* Mensaje de confirmación (verde) que aparece tras acciones exitosas */
 .success-message {
   margin-top: 14px;
   color: var(--success);
@@ -423,33 +502,38 @@ body {
   line-height: 1.5;
 }
 
+/* ===== MODAL =====
+   Overlay oscuro que cubre toda la pantalla al abrir el modal de compra */
 .modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(15, 23, 42, 0.55);
+  position: fixed;   /* Fijo respecto a la ventana del navegador */
+  inset: 0;          /* Equivale a top:0; right:0; bottom:0; left:0 */
+  background: rgba(15, 23, 42, 0.55); /* Fondo oscuro semitransparente */
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 20px;
-  z-index: 50;
+  z-index: 50; /* Por encima de todo el contenido de la página */
 }
 
+/* Contenedor del modal: blanco, bordes redondeados y sombra profunda */
 .modal {
-  width: min(760px, 100%);
+  width: min(760px, 100%); /* Máximo 760px pero no más ancho que la pantalla */
   background: white;
   border-radius: 24px;
   box-shadow: 0 30px 60px rgba(0, 0, 0, 0.18);
-  overflow: hidden;
+  overflow: hidden; /* Evita que el contenido desborde los bordes redondeados */
 }
 
+/* Cabecera del modal: título y botón de cierre en la misma fila */
 .modal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 20px 22px;
-  border-bottom: 1px solid #edf2f8;
+  border-bottom: 1px solid #edf2f8; /* Separador visual entre cabecera y contenido */
 }
 
+/* Botón circular "×" para cerrar el modal */
 .close-btn {
   background: #f3f6fb;
   width: 40px;
@@ -462,12 +546,14 @@ body {
   background: #e2e8f0;
 }
 
+/* Área de contenido del modal: resumen del pedido + formulario de compra */
 .modal-content {
   padding: 22px;
   display: grid;
   gap: 20px;
 }
 
+/* Caja del resumen del pedido dentro del modal */
 .order-summary {
   background: #f8fbff;
   border: 1px solid #e6eefb;
@@ -479,41 +565,51 @@ body {
   margin-bottom: 14px;
 }
 
+/* Fila de cada item del pedido y fila del total */
 .order-item,
 .order-total {
   display: flex;
-  justify-content: space-between;
+  justify-content: space-between; /* Nombre a la izquierda, precio a la derecha */
   gap: 10px;
   padding: 10px 0;
 }
 
+/* Separador inferior entre items del pedido */
 .order-item {
   border-bottom: 1px solid #e5edf8;
 }
 
+/* Fila del total con texto más grande */
 .order-total {
   padding-top: 16px;
   font-size: 1.1rem;
 }
 
+/* ===== MEDIA QUERIES — DISEÑO RESPONSIVO =====
+   Ajustes para pantallas menores a 768px (tablets y móviles) */
 @media (max-width: 768px) {
+  /* Título del hero más pequeño en móvil */
   .hero h1 {
     font-size: 2.2rem;
   }
 
+  /* Botones de acción apilados verticalmente en móvil */
   .product-actions {
     flex-direction: column;
   }
 
+  /* Filas del carrito en una sola columna en móvil */
   .cart-item {
     grid-template-columns: 1fr;
   }
 
+  /* Pie del carrito apilado verticalmente en móvil */
   .cart-footer {
     flex-direction: column;
     align-items: stretch;
   }
 
+  /* Botón de finalizar compra ocupa todo el ancho en móvil */
   .large-btn {
     width: 100%;
     min-width: unset;
