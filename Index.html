@@ -40,6 +40,8 @@
         <a href="#ofertas">Ofertas</a>
         <a href="#productos">Productos</a>
         <a href="#contacto">Contacto</a>
+        <!-- Enlace al panel de administración CRUD -->
+        <a href="#admin" @click="panelAdminVisible = true">Admin</a>
       </nav>
 
       <!-- ===== CONTENIDO PRINCIPAL ===== -->
@@ -311,6 +313,227 @@
           </div>
         </section>
 
+        <!-- ===== PANEL DE ADMINISTRACIÓN (CRUD DE PRODUCTOS) ===== -->
+        <!-- Permite crear, leer, actualizar y eliminar productos del catálogo -->
+        <!-- Los cambios se persisten en localStorage bajo la clave "supermercado_productos" -->
+        <section class="card" id="admin">
+          <div class="section-header">
+            <div>
+              <h2>Panel de Administración</h2>
+              <p>Gestiona el catálogo de productos</p>
+            </div>
+            <!-- Botón para expandir o colapsar el panel completo -->
+            <button
+              class="primary-btn"
+              style="flex: none; padding: 10px 20px;"
+              @click="panelAdminVisible = !panelAdminVisible"
+            >
+              {{ panelAdminVisible ? 'Ocultar panel' : 'Abrir panel' }}
+            </button>
+          </div>
+
+          <!-- v-if: todo el contenido solo se renderiza cuando el panel está abierto -->
+          <div v-if="panelAdminVisible">
+
+            <!-- ── READ: Tabla de todos los productos ── -->
+            <div class="admin-table-wrapper">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th>Imagen</th>
+                    <th>Nombre</th>
+                    <th>Precio</th>
+                    <th>Categoría</th>
+                    <th>Estado</th>
+                    <th>Oferta</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <!-- v-for: una fila por cada producto del catálogo -->
+                  <tr v-for="producto in productos" :key="producto.id">
+                    <td>
+                      <!-- Miniatura: admite tanto rutas relativas como Base64 -->
+                      <img
+                        :src="producto.imagen"
+                        :alt="producto.nombre"
+                        class="admin-thumb"
+                      />
+                    </td>
+                    <td><strong>{{ producto.nombre }}</strong></td>
+                    <td>${{ Number(producto.precio).toLocaleString('es-CO') }}</td>
+                    <td>{{ producto.categoria }}</td>
+                    <td>
+                      <!-- Badge de disponibilidad con clase dinámica -->
+                      <span :class="producto.disponible ? 'badge-disponible' : 'badge-agotado'">
+                        {{ producto.disponible ? 'Disponible' : 'Agotado' }}
+                      </span>
+                    </td>
+                    <td>
+                      <span v-if="producto.enOferta" class="badge-oferta">Oferta</span>
+                      <span v-else class="badge-normal">Normal</span>
+                    </td>
+                    <td class="admin-actions">
+                      <!-- UPDATE: carga los datos del producto en el formulario -->
+                      <button class="btn-editar" @click="abrirFormularioEditar(producto.id)">
+                        Editar
+                      </button>
+                      <!-- DELETE: pide confirmación antes de eliminar -->
+                      <button class="btn-eliminar" @click="eliminarProducto(producto.id)">
+                        Eliminar
+                      </button>
+                    </td>
+                  </tr>
+
+                  <!-- Fila vacía: solo se muestra cuando no hay ningún producto -->
+                  <tr v-if="productos.length === 0">
+                    <td colspan="7" class="admin-empty">
+                      No hay productos en el catálogo. Agrega uno con el formulario.
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- ── CREATE / UPDATE: Formulario de alta y edición ── -->
+            <!-- id="admin-form" permite hacer scroll programático hasta aquí -->
+            <div class="admin-form-card" id="admin-form">
+              <!-- Título cambia según el modo activo (crear vs editar) -->
+              <h3>{{ modoEdicion ? 'Editar producto' : 'Agregar nuevo producto' }}</h3>
+
+              <!-- @submit.prevent: evita el reload; delega a guardarProducto() -->
+              <form class="admin-form" @submit.prevent="guardarProducto">
+
+                <!-- Fila 1: nombre del producto y categoría -->
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="admin-nombre">Nombre del producto *</label>
+                    <input
+                      id="admin-nombre"
+                      type="text"
+                      v-model="formAdmin.nombre"
+                      placeholder="Ej: Arroz Premium"
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label for="admin-categoria">Categoría *</label>
+                    <input
+                      id="admin-categoria"
+                      type="text"
+                      v-model="formAdmin.categoria"
+                      placeholder="Ej: Granos, Lácteos, Proteínas..."
+                    />
+                  </div>
+                </div>
+
+                <!-- Fila 2: precio actual y precio anterior (para calcular descuento) -->
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="admin-precio">Precio actual *</label>
+                    <input
+                      id="admin-precio"
+                      type="number"
+                      v-model="formAdmin.precio"
+                      placeholder="0"
+                      min="0"
+                      step="1"
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label for="admin-precio-anterior">
+                      Precio anterior (opcional, para mostrar descuento)
+                    </label>
+                    <input
+                      id="admin-precio-anterior"
+                      type="number"
+                      v-model="formAdmin.precioAnterior"
+                      placeholder="0"
+                      min="0"
+                      step="1"
+                    />
+                  </div>
+                </div>
+
+                <!-- Descripción breve del producto -->
+                <div class="form-group">
+                  <label for="admin-descripcion">Descripción</label>
+                  <textarea
+                    id="admin-descripcion"
+                    v-model="formAdmin.descripcion"
+                    placeholder="Breve descripción del producto..."
+                  ></textarea>
+                </div>
+
+                <!-- Fila 3: checkboxes de estado -->
+                <div class="form-row">
+                  <div class="form-group">
+                    <!-- v-model en checkbox enlaza un booleano -->
+                    <label class="checkbox-label">
+                      <input type="checkbox" v-model="formAdmin.disponible" />
+                      Producto disponible
+                    </label>
+                  </div>
+                  <div class="form-group">
+                    <label class="checkbox-label">
+                      <input type="checkbox" v-model="formAdmin.enOferta" />
+                      En oferta
+                    </label>
+                  </div>
+                </div>
+
+                <!-- Subida de imagen JPG -->
+                <div class="form-group">
+                  <label>Imagen del producto (JPG / JPEG)</label>
+                  <!-- accept: el selector de archivos solo muestra JPG/JPEG -->
+                  <!-- @change: llama a manejarImagen() que valida y convierte a Base64 -->
+                  <input
+                    type="file"
+                    accept=".jpg,.jpeg,image/jpeg"
+                    @change="manejarImagen"
+                    class="input-file"
+                  />
+                  <p class="input-hint">
+                    Solo se aceptan archivos .jpg o .jpeg. Máximo recomendado: 2 MB.
+                  </p>
+
+                  <!-- Vista previa: visible cuando hay imagen seleccionada o existente -->
+                  <div v-if="imagenPreview" class="imagen-preview">
+                    <img :src="imagenPreview" alt="Vista previa de la imagen" />
+                    <!-- Quita la imagen del formulario sin necesidad de guardar -->
+                    <button
+                      type="button"
+                      class="btn-quitar-imagen"
+                      @click="formAdmin.imagen = ''; imagenPreview = null"
+                    >
+                      Quitar imagen
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Botones de acción del formulario -->
+                <div class="admin-form-actions">
+                  <!-- Botón principal: su texto cambia según el modo -->
+                  <button type="submit" class="primary-btn">
+                    {{ modoEdicion ? 'Guardar cambios' : 'Agregar producto' }}
+                  </button>
+
+                  <!-- Cancelar: solo aparece en modo edición -->
+                  <button
+                    type="button"
+                    class="secondary-btn"
+                    v-if="modoEdicion"
+                    @click="abrirFormularioCrear"
+                  >
+                    Cancelar edición
+                  </button>
+                </div>
+
+              </form>
+            </div>
+
+          </div>
+        </section>
+
         <!-- ===== SECCIÓN DE CONTACTO ===== -->
         <section class="card" id="contacto">
           <div class="section-header">
@@ -420,6 +643,18 @@
           </div>
         </div>
       </div>
+
+      <!-- ===== NOTIFICACIÓN TOAST ===== -->
+      <!-- Se muestra en la esquina inferior derecha durante 3 segundos -->
+      <!-- transition aplica las clases CSS toast-enter-* y toast-leave-* -->
+      <transition name="toast">
+        <div
+          v-if="notificacion.visible"
+          :class="['toast', 'toast-' + notificacion.tipo]"
+        >
+          {{ notificacion.mensaje }}
+        </div>
+      </transition>
 
     </div><!-- Fin del contenedor raíz #app de Vue -->
   </body>
