@@ -27,21 +27,48 @@
       <!-- Sección visual de bienvenida con el nombre y descripción de la tienda -->
       <header class="hero">
         <div class="hero-content">
+          <span class="hero-eyebrow">Mercado fresco · Precios bajos · Compra rápida</span>
           <!-- Título dinámico: Vue reemplaza {{ }} con datos del objeto "tienda" -->
           <h1>{{ tienda.nombre }}</h1>
           <p>{{ tienda.descripcion }}</p>
+
+          <div class="hero-actions">
+            <a href="#productos" class="hero-btn hero-btn-primary">Ver productos</a>
+            <a href="#ofertas" class="hero-btn hero-btn-secondary">Ofertas de hoy</a>
+          </div>
+
+          <div class="hero-stats" aria-label="Beneficios principales">
+            <div>
+              <strong>+{{ productos.length }}</strong>
+              <span>productos</span>
+            </div>
+            <div>
+              <strong>{{ productosEnOferta.length }}</strong>
+              <span>ofertas activas</span>
+            </div>
+            <div>
+              <strong>24h</strong>
+              <span>atención</span>
+            </div>
+          </div>
         </div>
       </header>
 
       <!-- ===== BARRA DE NAVEGACIÓN ===== -->
       <!-- Navbar fija en la parte superior para desplazarse entre secciones -->
       <nav class="navbar">
-        <a href="#">Inicio</a>
-        <a href="#ofertas">Ofertas</a>
-        <a href="#productos">Productos</a>
-        <a href="#contacto">Contacto</a>
-        <!-- Enlace al panel de administración CRUD -->
-        <a href="#admin" @click="panelAdminVisible = true">Admin</a>
+        <div class="nav-inner">
+          <a href="#" class="nav-brand">La Economía</a>
+          <div class="nav-links">
+            <a href="#">Inicio</a>
+            <a href="#ofertas">Ofertas</a>
+            <a href="#productos">Productos</a>
+            <a href="#contacto">Contacto</a>
+            <!-- Enlace al panel de administración CRUD -->
+            <a href="#admin" @click="panelAdminVisible = true">Admin</a>
+          </div>
+          <a href="#carrito" class="nav-cart">🛒 {{ cantidadCarrito }}</a>
+        </div>
       </nav>
 
       <!-- ===== CONTENIDO PRINCIPAL ===== -->
@@ -124,7 +151,7 @@
               :key="producto.id"
             >
               <!-- Badge rojo con el porcentaje de descuento del producto -->
-              <div class="offer-badge">-{{ producto.descuento }}%</div>
+              <div class="offer-badge">-{{ calcularDescuento(producto) }}%</div>
 
               <!-- Imagen del producto: src y alt se enlazan dinámicamente con : (v-bind) -->
               <img
@@ -196,7 +223,12 @@
           </div>
 
           <!-- Grid de tarjetas de productos filtrados -->
-          <div class="products-grid">
+          <div v-if="productosFiltrados.length === 0" class="empty-state empty-state-centered">
+            <p>No encontramos productos con esa búsqueda o filtro.</p>
+            <button class="secondary-btn" @click="busqueda = ''; categoriaSeleccionada = 'Todos'">Limpiar filtros</button>
+          </div>
+
+          <div v-else class="products-grid">
             <article
               class="product-card"
               v-for="producto in productosFiltrados"
@@ -261,7 +293,7 @@
         </section>
 
         <!-- ===== SECCIÓN DEL CARRITO DE COMPRAS ===== -->
-        <section class="card">
+        <section class="card" id="carrito">
           <div class="section-header">
             <h2>Carrito</h2>
             <!-- Subtítulo condicional: solo se muestra si hay items en el carrito -->
